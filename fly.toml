@@ -1,15 +1,15 @@
-# fly.toml app configuration file generated for galo-cinza-app on 2026-07-03T07:33:06Z
+# fly.toml app configuration file generated for galo-cinza-app-krqvmq on 2026-07-03T07:47:53Z
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'galo-cinza-app'
-primary_region = 'iad'
+app = 'galo-cinza-app-krqvmq'
+primary_region = 'ams'
 
 [build]
 
 [http_service]
-  internal_port = 3000
+  internal_port = 8080
   force_https = true
   auto_stop_machines = 'stop'
   auto_start_machines = true
