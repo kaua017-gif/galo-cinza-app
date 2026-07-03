@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>Galo Cinza - Automação de Infoprodutos</title>
+ <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-gray-900 text-gray-100 font-sans">
+ <nav class="border-b border-gray-800 p-4 flex justify-between items-center max-w-6xl mx-auto">
+ <h1 class="text-xl font-bold text-indigo-400">⚡ Galo Cinza IA</h1>
+ <div class="flex items-center gap-2">
+ <input type="password" id="tokenPlataforma" placeholder="Cole seu Token Kiwify/Cakto" 
+ class="bg-gray-950 border border-gray-700 rounded px-3 py-1.5 text-xs text-gray-300 focus:outline-none focus:border-indigo-500">
+ </div>
+ </nav>
+ <main class="max-w-4xl mx-auto mt-12 p-6 mb-24">
+ 
+ <div class="text-center mb-10">
+ <h2 class="text-3xl font-extrabold tracking-tight sm:text-4xl">O que você quer vender hoje?</h2>
+ <p class="text-gray-400 mt-2">Nossa IA cria o e-book, gera os vídeos e cadastra na sua plataforma de vendas.</p>
+ </div>
+ <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 mb-8">
+ <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">🔥 Bombando nas pesquisas hoje:</h3>
+ <div class="flex flex-wrap gap-2">
+ <button onclick="preencherTema('Ansiedade no Trabalho')" class="bg-gray-700 hover:bg-gray-600 cursor-pointer px-3 py-1.5 rounded-lg text-sm transition">🧠 Ansiedade no Trabalho</button>
+ <button onclick="preencherTema('Renda Extra com IA')" class="bg-gray-700 hover:bg-gray-600 cursor-pointer px-3 py-1.5 rounded-lg text-sm transition">💰 Renda Extra com IA</button>
+ <button onclick="preencherTema('Marmitas Saudáveis')" class="bg-gray-700 hover:bg-gray-600 cursor-pointer px-3 py-1.5 rounded-lg text-sm transition">🥗 Marmitas Saudáveis</button>
+ </div>
+ </div>
+ <div class="space-y-4">
+ <div>
+ <label class="block text-sm font-medium text-gray-300 mb-2">Descreva a ideia do seu E-book:</label>
+ <input type="text" id="temaEbook" placeholder="Ex: Um guia rápido de 7 dias para perder a timidez e falar em público..." 
+ class="w-full bg-gray-950 border border-gray-700 rounded-lg p-4 text-gray-200 focus:outline-none focus:border-indigo-500 transition">
+ </div>
+ <button onclick="enviarParaServidor()" id="btnCriar" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium p-4 rounded-lg shadow-lg hover:shadow-indigo-500/20 transition flex items-center justify-center gap-2">
+ <span id="btnTexto">Criar E-book & Vincular Produto</span> 🚀
+ </button>
+ </div>
+ <div id="resultado" class="hidden mt-12 space-y-8 border-t border-gray-800 pt-8">
+ 
+ <div class="bg-green-950/40 border border-green-800 p-6 rounded-xl">
+ <h4 class="text-green-400 font-bold text-lg mb-2">🎉 Produto Criado com Sucesso!</h4>
+ <p class="text-sm text-gray-300 mb-4">O e-book já foi enviado e cadastrado na sua conta.</p>
+ <div class="flex gap-2">
+ <input type="text" id="linkCheckout" readonly class="w-full bg-gray-950 border border-gray-800 rounded p-2 text-sm text-gray-400">
+ <button onclick="navigator.clipboard.writeText(document.getElementById('linkCheckout').value)" class="bg-green-700 hover:bg-green-600 px-4 py-2 rounded text-sm font-medium transition">Copiar</button>
+ </div>
+ </div>
+ <div class="bg-gray-800 p-6 rounded-xl border border-gray-700">
+ <h4 class="text-indigo-400 font-bold text-lg mb-3">🎬 Roteiro do Vídeo Viral (TikTok/Reels)</h4>
+ <pre id="textoRoteiro" class="whitespace-pre-wrap bg-gray-950 p-4 rounded-lg text-sm text-gray-300 border border-gray-900 font-mono"></pre>
+ </div>
+ <div class="bg-gray-800 p-6 rounded-xl border border-gray-700">
+ <h4 class="text-indigo-400 font-bold text-lg mb-3">🎯 Canais de Divulgação & Copy Camuflada</h4>
+ <pre id="textoGrupos" class="whitespace-pre-wrap bg-gray-950 p-4 rounded-lg text-sm text-gray-300 border border-gray-900 font-mono"></pre>
+ </div>
+ </div>
+ </main>
+ <script>
+ function preencherTema(tema) {
+ document.getElementById('temaEbook').value = `Um guia prático focado em ${tema}`;
+ }
+ async function enviarParaServidor() {
+ const tema = document.getElementById('temaEbook').value;
+ const token = document.getElementById('tokenPlataforma').value;
+ 
+ const btnCriar = document.getElementById('btnCriar');
+ const btnTexto = document.getElementById('btnTexto');
+ const resultadoDiv = document.getElementById('resultado');
+ if (!tema || !token) {
+ alert("Por favor, digite o tema do e-book e insira o token da sua plataforma!");
+ return;
+ }
+ btnCriar.disabled = true;
+ btnCriar.classList.add('opacity-50', 'cursor-not-allowed');
+ btnTexto.innerText = "A Inteligência Artificial está trabalhando... Aguarde.";
+ try {
+ const resposta = await fetch('/api/criar-produto', {
+ method: 'POST',
+ headers: { 'Content-Type': 'application/json' },
+ body: JSON.stringify({ tema: tema, tokenPlataforma: token })
+ });
+ const dados = await resposta.json();
+ if (dados.sucesso) {
+ document.getElementById('linkCheckout').value = dados.checkoutUrl;
+ document.getElementById('textoRoteiro').innerText = dados.videoScript;
+ document.getElementById('textoGrupos').innerText = dados.marketingComunidades;
+ 
+ resultadoDiv.classList.remove('hidden');
+ window.scrollTo({ top: resultadoDiv.offsetTop, behavior: 'smooth' });
+ } else {
+ alert("Erro enviado pelo servidor: " + dados.erro);
+ }
+ } catch (error) {
+ console.error("Erro na requisição:", error);
+ alert("Não foi possível conectar ao servidor backend.");
+ } finally {
+ btnCriar.disabled = false;
+ btnCriar.classList.remove('opacity-50', 'cursor-not-allowed');
+ btnTexto.innerText = "Criar E-book & Vincular Produto";
+ }
+ }
+ </script>
+</body>
+</html>
